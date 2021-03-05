@@ -28,7 +28,7 @@ public class InboundPatientController {
       return patients;
    }
 
-   protected ArrayList<Patient> buildPatiemtsFromXml(String xmlForInbound) {
+   public static ArrayList<Patient> buildPatiemtsFromXml(String xmlForInbound) {
 
       ArrayList<Patient> patients = new ArrayList<>();
 

@@ -12,7 +12,6 @@ public class InboundPatientControllerTest {
 
     @Test
     public void testInboundXmlConversion() {
-        InboundPatientController controller = new InboundPatientController(null);
         String xml = "<Inbound>" +
                      "<Patient>" +
                      "<TransportId>1</TransportId>" +
@@ -22,7 +21,7 @@ public class InboundPatientControllerTest {
                      "<Birthdate></Birthdate>" +
                      "</Patient>" +
                      "</Inbound>";
-        List<Patient> patients = controller.buildPatiemtsFromXml(xml);
+        List<Patient> patients = InboundPatientController.buildPatiemtsFromXml(xml);
         assertEquals(1, patients.size());
         Patient patient = patients.get(0);
         assertEquals(1, patient.getTransportId());
