@@ -15,7 +15,9 @@ public class AlertScannerTestingSubclass extends AlertScanner{
 
     @Override
     protected void alertForNewCriticalPatient(Patient patient) {
+        if(!patientsAlertedFor.contains(patient)) {
 
-        patientsAlertedFor.add(patient);
+            patientsAlertedFor.add(patient);
+        }
     }
 }

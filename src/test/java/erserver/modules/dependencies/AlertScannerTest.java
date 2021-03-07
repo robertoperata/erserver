@@ -13,10 +13,11 @@ public class AlertScannerTest {
         InboundPatientTestDouble inboundPatientTestDouble = new InboundPatientTestDouble();
         inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(11, Priority.RED, "stroke"));
         inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(12, Priority.YELLOW, "broken leg"));
-        AlertScannerTestingSubclass alertScanner = new AlertScannerTestingSubclass(inboundPatientTestDouble);
+        AlertTransmitterTestDouble transmitterTestDouble = new AlertTransmitterTestDouble();
+        AlertScanner alertScanner = new AlertScanner(inboundPatientTestDouble, transmitterTestDouble);
         alertScanner.scan();
-        Assert.assertEquals(1, alertScanner.patientsAlertedFor.size());
-        Assert.assertEquals(11, alertScanner.patientsAlertedFor.get(0).getTransportId());
+        Assert.assertEquals(1, transmitterTestDouble.getAlertsReceivedRequireAck().size());
+        Assert.assertEquals( "111-111-1111: New inbound critical patient: 11", transmitterTestDouble.getAlertsReceivedRequireAck().get(0));
 
     }
     @Test
@@ -25,6 +26,18 @@ public class AlertScannerTest {
         inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(11, Priority.GREEN, "breath"));
         inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(12, Priority.YELLOW, "heart arrhytmia"));
         AlertScannerTestingSubclass alertScanner = new AlertScannerTestingSubclass(inboundPatientTestDouble);
+        alertScanner.scan();
+        Assert.assertEquals(1, alertScanner.patientsAlertedFor.size());
+        Assert.assertEquals(12, alertScanner.patientsAlertedFor.get(0).getTransportId());
+
+    }
+    @Test
+    public void onlyTransmitOnceForGivenInboundPatient() {
+        InboundPatientTestDouble inboundPatientTestDouble = new InboundPatientTestDouble();
+        inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(11, Priority.GREEN, "breath"));
+        inboundPatientTestDouble.simulateNewInboundPatient(createTestRedPatient(12, Priority.YELLOW, "heart arrhytmia"));
+        AlertScannerTestingSubclass alertScanner = new AlertScannerTestingSubclass(inboundPatientTestDouble);
+        alertScanner.scan();
         alertScanner.scan();
         Assert.assertEquals(1, alertScanner.patientsAlertedFor.size());
         Assert.assertEquals(12, alertScanner.patientsAlertedFor.get(0).getTransportId());

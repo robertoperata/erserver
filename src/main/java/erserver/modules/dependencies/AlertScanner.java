@@ -11,14 +11,30 @@ public class AlertScanner {
 
    private static final String ADMIN_ON_CALL_DEVICE = "111-111-1111";
 
-//   private StaffAssignmentManager staffAssignmentManager;
    private InboundPatientSource inboundPatientSource;
    private ArrayList<Integer> criticalPatientNotificationsSent;
+   private AlertTransmitter alertTransmitter;
 
-   public AlertScanner(/*StaffAssignmentManager staffAssignmentManager, */InboundPatientSource inboundPatientSource) {
+   public AlertScanner(InboundPatientSource inboundPatientSource) {
+      this(inboundPatientSource, new PagerSystemAlertTransmitter());
 //      this.staffAssignmentManager = staffAssignmentManager;
-      this.inboundPatientSource = inboundPatientSource;
       criticalPatientNotificationsSent = new ArrayList<>();
+   }
+
+   public AlertScanner(InboundPatientSource inboundPatientSource, AlertTransmitter alertTransmitter) {
+      this.inboundPatientSource = inboundPatientSource;
+      this.alertTransmitter = alertTransmitter;
+      criticalPatientNotificationsSent = new ArrayList<>();
+   }
+
+   protected void alertForNewCriticalPatient(Patient patient) {
+      try {
+         alertTransmitter.transmitRequiringAcknowledgement(ADMIN_ON_CALL_DEVICE, "New inbound critical patient: " +
+                                                                                 patient.getTransportId());
+         criticalPatientNotificationsSent.add(patient.getTransportId());
+      } catch (Throwable t) {
+         System.out.println("Failed attempt to use pager system to device " + ADMIN_ON_CALL_DEVICE);
+      }
    }
 
    public void scan() {
@@ -35,18 +51,6 @@ public class AlertScanner {
                alertForNewCriticalPatient(patient);
             }
          }
-      }
-   }
-
-   protected void alertForNewCriticalPatient(Patient patient) {
-      try {
-         PagerTransport transport = PagerSystem.getTransport();
-         transport.initialize();
-         transport.transmitRequiringAcknowledgement(ADMIN_ON_CALL_DEVICE, "New inbound critical patient: " +
-            patient.getTransportId());
-         criticalPatientNotificationsSent.add(patient.getTransportId());
-      } catch (Throwable t) {
-         System.out.println("Failed attempt to use pager system to device " + ADMIN_ON_CALL_DEVICE);
       }
    }
 
